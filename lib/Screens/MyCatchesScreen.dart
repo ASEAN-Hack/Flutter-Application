@@ -3,8 +3,11 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:localstorage/localstorage.dart';
 import 'Background1.dart';
+
+import 'package:localstorage/localstorage.dart';
 // ignore: unused_import
 import 'RecordCatchScreen.dart';
+import 'package:geolocator/geolocator.dart';
 import 'UpdatesScreen.dart';
 import 'ExploreScreen.dart';
 class MyCatchesScreen extends StatelessWidget {
@@ -40,8 +43,11 @@ class CatchList extends StatefulWidget {
 }
 
 class _CatchListState extends State<CatchList> {
-  final String apiUrl = "http://41cb45ed4d22.ngrok.io/getCatchesHistory?mobile=";
+  final String apiUrl = "http://817f657e0735.ngrok.io/getCatchesHistory?mobile=";
   List<dynamic> _catches = [];
+  final LocalStorage storage = new LocalStorage('localstorage_app');
+  Geolocator _geolocator;
+
 
   void fetchCatches() async {
     final LocalStorage storage = new LocalStorage('localstorage_app');
@@ -96,10 +102,31 @@ class _CatchListState extends State<CatchList> {
     });
   }
 
+    void checkPermission() {
+    _geolocator.checkGeolocationPermissionStatus().then((status) {
+      print('status: $status');
+    });
+    _geolocator
+        .checkGeolocationPermissionStatus(
+            locationPermission: GeolocationPermission.locationAlways)
+        .then((status) {
+      print('always status: $status');
+    });
+    _geolocator.checkGeolocationPermissionStatus(
+        locationPermission: GeolocationPermission.locationWhenInUse)
+      ..then((status) {
+        print('whenInUse status: $status');
+      });
+  }
+
+
+
   @override
   void initState() {
     
     super.initState();
+    _geolocator = Geolocator();
+    checkPermission();
     fetchCatches();
   }
 

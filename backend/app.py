@@ -6,6 +6,8 @@ import base64
 import requests
 import io
 import numpy as np
+import datetime  
+import random
 from PIL import Image
 import pyrebase
 import os
@@ -50,6 +52,7 @@ db = firestore.client()
 # Document for userAccounts
 userAccounts  = db.collection('userAccounts')
 userCatches = db.collection('userCatches')
+adminUpdates = db.collection('adminUpdates')
 #The base route - This usually is used to check whether server is up or not.
 @app.route('/')
 def index():
@@ -74,6 +77,42 @@ def signup():
     except Exception as e:
         return f"An Error Occured: {e}",400
 
+
+
+
+@app.route('/postAnUpdate',methods=['POST'])
+def postUpdate():
+
+    data  = request.json
+    print(data)
+    try:
+        current_time = datetime.datetime.now() 
+        updateId = ''.join([str(random.randint(0, 999)).zfill(3) for _ in range(2)])
+        date = '/'.join([str(current_time.day),str(current_time.month),str(current_time.year)])
+        time = ':'.join([str(current_time.hour),str(current_time.minute),str(current_time.second)])
+        data['updateTime'] = time
+        data['updateDate'] = date
+        data['updateId'] = updateId
+        adminUpdates.document(updateId).set(data)
+        response = jsonify({"success":True}),200
+        return response
+    except Exception as e:
+        return f"An Error Occured", 500
+
+
+@app.route('/getAllUpdates',methods=['GET'])
+def getAllUpdates():
+    try:
+        updates = adminUpdates.stream()
+        updatesArray = list()
+        for update in updates:
+            temp = update.to_dict()
+            updatesArray.append(temp)
+        print(updatesArray)
+        return jsonify({'success':True,'updatesArray':updatesArray}), 200
+
+    except Exception as e:
+        return f"An error occured", 500
 
 '''
 

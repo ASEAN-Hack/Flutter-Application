@@ -88,7 +88,7 @@ class MyCustomFormState extends State<MyCustomForm> {
           String base64Image = base64Encode(_catchImage.readAsBytesSync());
           String fileName = _catchImage.path.split("/").last;
 
-          final uri = "http://41cb45ed4d22.ngrok.io/updateCatch";
+          final uri = "http://817f657e0735.ngrok.io/updateCatch";
               Map requestBody = {
                   "image": base64Image,
                   "imageFileName":fileName,
