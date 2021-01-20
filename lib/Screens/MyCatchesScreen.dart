@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:localstorage/localstorage.dart';
 import 'Background1.dart';
 
+import 'package:app2/constants.dart';
 import 'package:localstorage/localstorage.dart';
 // ignore: unused_import
 import 'RecordCatchScreen.dart';
@@ -43,7 +44,7 @@ class CatchList extends StatefulWidget {
 }
 
 class _CatchListState extends State<CatchList> {
-  final String apiUrl = "http://817f657e0735.ngrok.io/getCatchesHistory?mobile=";
+  final String apiUrl = URL+"/getCatchesHistory?mobile=";
   List<dynamic> _catches = [];
   final LocalStorage storage = new LocalStorage('localstorage_app');
   Geolocator _geolocator;

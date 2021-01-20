@@ -5,12 +5,10 @@ import 'package:app2/Screens/MyCatchesScreen.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:progress_dialog/progress_dialog.dart';
-import 'package:google_map_location_picker/google_map_location_picker.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_cropper/image_cropper.dart';
 import '../styles/styles.dart';
-
+import 'package:app2/constants.dart';
 import 'package:localstorage/localstorage.dart';
 
 
@@ -88,7 +86,7 @@ class MyCustomFormState extends State<MyCustomForm> {
           String base64Image = base64Encode(_catchImage.readAsBytesSync());
           String fileName = _catchImage.path.split("/").last;
 
-          final uri = "http://817f657e0735.ngrok.io/updateCatch";
+          final uri = URL+"/updateCatch";
               Map requestBody = {
                   "image": base64Image,
                   "imageFileName":fileName,

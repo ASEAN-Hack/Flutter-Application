@@ -7,6 +7,8 @@ import requests
 import io
 import numpy as np
 import datetime  
+from haversine import Unit
+import haversine as hs
 import random
 from PIL import Image
 import pyrebase
@@ -53,10 +55,13 @@ db = firestore.client()
 userAccounts  = db.collection('userAccounts')
 userCatches = db.collection('userCatches')
 adminUpdates = db.collection('adminUpdates')
+fishData = db.collection('fishData')
+
 #The base route - This usually is used to check whether server is up or not.
 @app.route('/')
 def index():
     return "Hello World"
+
 
 @app.route('/signup',methods=['POST'])
 def signup():
@@ -76,6 +81,7 @@ def signup():
             return response
     except Exception as e:
         return f"An Error Occured: {e}",400
+
 
 
 
@@ -142,6 +148,28 @@ def getCatches():
         return f"An error occured {e}", 400
 
 
+@app.route('/getNearbyCatches',methods=['GET'])
+def getNearbyCatches():
+    print(request.args)
+    latitude = float(request.args['latitude'])
+    longitude = float(request.args['longitude'])
+    nearbyCatches = fishData.stream()
+    nearestCatches = list()
+    for catch in nearbyCatches:
+        # print(catch.to_dict(),"hi")
+        temp = catch.to_dict()
+        loc1 = (float(temp['latitude']),float(temp['longitude']))
+        loc2 = (latitude,longitude)
+        distance = hs.haversine(loc1,loc2,unit=Unit.METERS)
+        print(distance)
+        if distance < 25000:
+            nearestCatches.append(temp)
+            pass
+        else:
+            pass
+    return jsonify({'success':True,'nearestCatches':nearestCatches})
+
+
 @app.route('/updateCatch',methods=['POST'])
 def updateCatch():
 
@@ -162,10 +190,42 @@ def updateCatch():
             'longitude':data['longitude'],
             'name':data['name'],
             'weight':data['weight'],
-            'number':data['number']
+            'number':data['number'],
+            'catchId': int(''.join([str(random.randint(0, 999)).zfill(3) for _ in range(2)]))
         }
         ref = userCatches.document(str(data['number']))
         ref.update({u'catches': firestore.ArrayUnion([data])})
+        data1 = {
+            'latitude':data['latitude'],
+            'longitude':data['longitude'],
+            'catches':[
+                {
+                    'cost':200,
+                    'fishType':'Shark',
+                    'weight':50,
+                    'quantity':10
+                },
+                            {
+                    'cost':200,
+                    'fishType':'Whale',
+                    'weight':50,
+                    'quantity':10
+                },
+                            {
+                    'cost':200,
+                    'fishType':'Dolphin',
+                    'weight':50,
+                    'quantity':10
+                },
+                {
+                    'cost':200,
+                    'fishType':'Bluefish',
+                    'weight':50,
+                    'quantity':10
+                }
+            ]
+        }
+        fishData.document(str(data['catchId'])).set(data1)
         return jsonify({"success":True})
     
     except Exception as e:

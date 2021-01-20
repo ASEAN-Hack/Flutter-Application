@@ -12,6 +12,8 @@ import 'dart:convert';
 import 'package:localstorage/localstorage.dart';
 import 'package:awesome_dialog/awesome_dialog.dart';
 
+import '../../../constants.dart';
+
 // ignore: must_be_immutable
 class Body extends StatelessWidget {
   final LocalStorage storage = new LocalStorage('localstorage_app');
@@ -90,7 +92,7 @@ class Body extends StatelessWidget {
             RoundedButton(
               text: "LOGIN",
               press: () async{
-                final uri = "http://817f657e0735.ngrok.io/login";
+                final uri = URL+"/login";
               Map requestBody = {
                 "password":password,
                 "mobile":mobile

@@ -13,6 +13,8 @@ import 'package:http/http.dart' as http;
 
 import 'package:awesome_dialog/awesome_dialog.dart';
 
+import '../../../constants.dart';
+
 //ignore: must_be_immutable
 class Body extends StatelessWidget {
 
@@ -115,7 +117,7 @@ class Body extends StatelessWidget {
             RoundedButton(
               text: "SIGNUP",
               press: () async{
-                final uri = "http://817f657e0735.ngrok.io/signup";
+                final uri = URL+"/signup";
               Map requestBody = {
                 "fisherManName":name,
                 "fisherManId":getFishermanId(),
