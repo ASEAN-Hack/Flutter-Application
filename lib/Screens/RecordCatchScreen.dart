@@ -51,6 +51,7 @@ class MyCustomFormState extends State<MyCustomForm> {
   final descriptionController = TextEditingController();
   final dateController = TextEditingController();
   final weightController = TextEditingController();
+  final hoursController = TextEditingController();
   final latitudeController = TextEditingController();
   final longitudeController = TextEditingController();
 
@@ -96,7 +97,8 @@ class MyCustomFormState extends State<MyCustomForm> {
                   "weight":weightController.text.toString(),
                   "latitude":latitudeController.text.toString(),
                   "longitude":longitudeController.text.toString(),
-                  "number":storage.getItem('number').toString()
+                  "number":storage.getItem('number').toString(),
+                  'hours':hoursController.text.toString()
               };
               String body = json.encode(requestBody);
               print(requestBody);
@@ -228,6 +230,14 @@ class MyCustomFormState extends State<MyCustomForm> {
                           Icon(Icons.line_weight),
                           'Weight',
                           'Enter weight of catch'),
+                      keyboardType: TextInputType.number),
+                  Style.space(),
+                  TextFormField(
+                      controller: hoursController,
+                      decoration: Style.inputDecor(
+                          Icon(Icons.hourglass_bottom),
+                          'Hours Spent',
+                          'Hours Spent on the catch.'),
                       keyboardType: TextInputType.number),
                   Style.space(),
                   TextFormField(

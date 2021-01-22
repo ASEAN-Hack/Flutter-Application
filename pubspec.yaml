@@ -41,6 +41,7 @@ dependencies:
   google_maps_flutter: ^0.5.25
   url_launcher: ^5.4.2
   intro_slider: ^2.3.1
+  fl_chart: ^0.12.2
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -4,6 +4,7 @@ from firebase_admin import credentials,firestore,storage
 import cv2
 import base64
 import requests
+import matplotlib.pyplot as plt
 import io
 import numpy as np
 import datetime  
@@ -14,12 +15,15 @@ from PIL import Image
 import pyrebase
 import os
 
+# To be changed.
+BASE_PATH = "/home/learner/Desktop/app2/backend/images/"
+
 def convert(string,name):
 
     image = base64.b64decode(str(string))       
     fileName = name
 
-    imagePath = "/home/learner/Desktop/app2/backend/images/" + fileName
+    imagePath = BASE_PATH + fileName
 
     img = Image.open(io.BytesIO(image))
     img.save(imagePath, 'jpeg')
@@ -83,6 +87,152 @@ def signup():
         return f"An Error Occured: {e}",400
 
 
+'''
+
+    Month v/s number of catches on a Histogram.
+    Month - Number, we are giving.
+    Catch quantity - Number
+
+    Not Optmized - Bad DB Structure.
+
+'''
+@app.route('/monthVsCatch',methods=['GET'])
+def getChart1():
+    try:
+        data = fishData.stream()
+        dataDict = {}
+        for data1 in data:
+            data1 = data1.to_dict()
+            month = int(data1['date'].split("/")[1])
+            count = 0
+            for i in data1['catches']:
+                count += int(i['quantity'])
+
+            if month in dataDict:
+                dataDict[month] = dataDict[month] + count
+            else:
+                dataDict[month] = count
+
+        return jsonify({'data':dataDict})
+    except Exception as e:
+        return f"An Error Occured", 500
+
+'''
+
+    Month v/s weight of catches on a histogram
+    Month - Number, we are giving.
+    Weight - In Kgs
+
+    Not Optmized - Bad DB Structure.
+'''
+@app.route('/monthVsWeight',methods=['GET'])
+def getChart2():
+
+    try:
+        data = fishData.stream()
+        dataDict = {}
+        for data1 in data:
+            data1 = data1.to_dict()
+            month = int(data1['date'].split("/")[1])
+            weight = data1['totalWeight']
+            if month in dataDict:
+                dataDict[month] = dataDict[month] + weight
+            else:
+                dataDict[month] = weight
+
+        return jsonify({'data':dataDict})
+    except Exception as e:
+        return f"An Error Occured", 500
+
+'''
+
+    Month v/s CPUE - ForAdmin
+
+'''
+@app.route('/monthVsCpue',methods=['GET'])
+def getChart3():
+    data = fishData.stream()
+    dataDict = {}
+    monthCountDict = {}
+    try:
+        for data1 in data:
+            data1 = data1.to_dict()
+            print(data1)
+            month = int(data1['date'].split("/")[1])
+            weight = data1['totalWeight']
+            hours = data1['hours']
+            CPUE = weight/hours
+            if month in monthCountDict:
+                monthCountDict[month] += 1
+            else:
+                monthCountDict[month] = 1
+
+            if month in dataDict:
+                dataDict[month] = dataDict[month] + CPUE
+            else:
+                dataDict[month] = CPUE
+        ans = {}
+        for i in dataDict.keys():
+            ans[i] = dataDict[i]/monthCountDict[i]
+        
+        return jsonify({'data':ans})
+    except Exception as e:
+        return f"An Error Occured", 500        
+
+'''
+
+    Month V/s CPUE - For Fisherman
+
+'''
+@app.route('/monthVsCpueForFisherman',methods=['GET'])
+def getChart4():
+    print(request.args)
+    try:
+        number = str(request.args['number'])
+        catchDetails = userCatches.document(number).get().to_dict()["catches"]
+        # print(catchDetails)
+        resDict = dict()
+        monthDict = dict()
+        for i in catchDetails:
+
+            hours = float(i['hours'])
+            weight = float(i['weight'])
+            month = int(i['date'].split("/")[1])
+            print(month)
+            CPUE = weight/hours
+            print(CPUE)
+            if month in resDict:
+                resDict[month] = resDict[month] +  CPUE
+            else:
+                resDict[month] = CPUE
+            if month in monthDict:
+                monthDict[month] += 1
+
+            else:
+                monthDict[month] = 1
+
+
+            print(resDict,monthDict)
+        ans = {}
+        total = 0
+        for i in resDict.keys():
+            ans[i] = resDict[i]/monthDict[i]
+            total += ans[i]
+        
+        # This is the average weight/hour.
+        # Money saved is random.
+        res = total/len(ans)
+        plt.bar(list(ans.keys()), ans.values(), color='g')
+        plt.xlabel('Months')
+        plt.ylabel('CPUE(weight of catch/hour)')
+        imageTempPath = BASE_PATH +'temp.png'
+        plt.savefig(imageTempPath)
+        storage.child('charts/{}'.format('temp.png')).put(imageTempPath)
+        chartUrl = storage.child('charts/{}'.format('temp.png')).get_url(None)
+        print(chartUrl)
+        return jsonify({'chartUrl':chartUrl,'average':res,'moneySaved':res*2})
+    except Exception as e:
+        return f"An Error Occured", 500
 
 
 
@@ -180,7 +330,7 @@ def updateCatch():
         print(data)
         print(data['image'])
         convert(data['image'],data['imageFileName'])
-        imagePath = "/home/learner/Desktop/app2/backend/images/" + data['imageFileName']
+        imagePath = BASE_PATH + data['imageFileName']
         
         storage.child('fishes/{}'.format(data['imageFileName'])).put(imagePath)
         fish_url = storage.child('fishes/{}'.format(data['imageFileName'])).get_url(None)
@@ -189,6 +339,7 @@ def updateCatch():
             'date':data['date'],
             'description':data['description'],
             'image':fish_url,
+            'hours':float(data['hours']),
             'latitude':float(data['latitude']),
             'longitude':float(data['longitude']),
             'name':data['name'],
@@ -205,6 +356,7 @@ def updateCatch():
             'totalWeight':float(data2['weight']),
             'date':data2['date'],
             'catchId':data2['catchId'],
+            'hours':data2['hours'],
             'catches':[
                 {
                     'cost':200,

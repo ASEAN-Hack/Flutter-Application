@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:localstorage/localstorage.dart';
+import 'AnalyticsScreen.dart';
 import 'Background1.dart';
 
 import 'package:app2/constants.dart';
@@ -24,6 +25,7 @@ class MyCatchesScreen extends StatelessWidget {
         '/updates':(context)=> UpdatesScreen(),
         '/record':(context)=> RecordCatchScreen(),
         '/explore':(context)=> ExploreScreen(),
+        '/analytics':(context)=> AnalyticsScreen()
       },
     );
   }
@@ -272,8 +274,13 @@ class navigationDrawer extends StatelessWidget {
             text: 'Explore Catches',
             onTap: () => Navigator.pushNamed(context, '/explore'),
           ),
+          createDrawerBodyItem(
+            icon: Icons.analytics,
+            text: 'Analytics',
+            onTap: () => Navigator.pushNamed(context, '/analytics'),
+          ),
           ListTile(
-            title: Text('1.0.0', style: TextStyle(color: Colors.black)),
+            title: Text('2.0.0', style: TextStyle(color: Colors.black)),
             onTap: () {},
           ),
         ],
