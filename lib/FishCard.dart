@@ -3,7 +3,7 @@ class Catch{
   String fishType;
   String family;
   String genus;
-  int weight;
+  var weight;
   int quantity;
 
   Catch({
@@ -21,7 +21,7 @@ class FishCard {
   double longitude;
   int catchId;
   String date;
-  int weight;
+  var weight;
   List<Catch> catchesFish = [];
 
   FishCard({

@@ -70,7 +70,7 @@ class _IntroScreenState extends State<IntroScreen> {
             "Get Real time updates right from the Ministry of Weather and Horticulture",
         styleDescription: TextStyle(
             color: Colors.black, fontSize: 14, fontFamily: 'Quicksand'),
-        pathImage: "assets/images/chat.png",
+        pathImage: "assets/images/fish.png",
         heightImage: 125.0,
         widthImage: 100.0,
         backgroundColor: const Color(0xf2f8f9ff),

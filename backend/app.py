@@ -114,6 +114,7 @@ def getAllUpdates():
         for update in updates:
             temp = update.to_dict()
             updatesArray.append(temp)
+        updatesArray.reverse()
         print(updatesArray)
         return jsonify({'success':True,'updatesArray':updatesArray}), 200
 
@@ -143,6 +144,7 @@ def getCatches():
         print(mobile)
         catchDetails = userCatches.document(mobile).get().to_dict()["catches"]
         print(catchDetails)
+        catchDetails.reverse()
         return jsonify({"success":True,"catches":catchDetails})
     except Exception as e:
         return f"An error occured {e}", 400
@@ -182,22 +184,27 @@ def updateCatch():
         
         storage.child('fishes/{}'.format(data['imageFileName'])).put(imagePath)
         fish_url = storage.child('fishes/{}'.format(data['imageFileName'])).get_url(None)
-        data = {
+        print(fish_url)
+        data2 = {
             'date':data['date'],
             'description':data['description'],
             'image':fish_url,
-            'latitude':data['latitude'],
-            'longitude':data['longitude'],
+            'latitude':float(data['latitude']),
+            'longitude':float(data['longitude']),
             'name':data['name'],
-            'weight':data['weight'],
+            'weight':float(data['weight']),
             'number':data['number'],
             'catchId': int(''.join([str(random.randint(0, 999)).zfill(3) for _ in range(2)]))
         }
         ref = userCatches.document(str(data['number']))
-        ref.update({u'catches': firestore.ArrayUnion([data])})
+        ref.update({u'catches': firestore.ArrayUnion([data2])})
+        print(data2)
         data1 = {
-            'latitude':data['latitude'],
-            'longitude':data['longitude'],
+            'latitude':float(data2['latitude']),
+            'longitude':float(data2['longitude']),
+            'totalWeight':float(data2['weight']),
+            'date':data2['date'],
+            'catchId':data2['catchId'],
             'catches':[
                 {
                     'cost':200,
@@ -225,7 +232,8 @@ def updateCatch():
                 }
             ]
         }
-        fishData.document(str(data['catchId'])).set(data1)
+        print(data1)
+        fishData.document(str(data1['catchId'])).set(data1)
         return jsonify({"success":True})
     
     except Exception as e:
